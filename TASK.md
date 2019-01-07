@@ -10,7 +10,7 @@ Das Ziel der Übung ist das Verständnis und das Handling von gängigen Mikrokon
 * Grundverständnis von Mikrokontroller-Programmiernug und das Deployment mittels Toolchains.
 * Grundkenntnisse über die sichere Verkabelung von embedded Devices.
 
-## Detailierte Ausgabenbeschreibung
+## Detailierte Aufgabenbeschreibung
 Basierend auf der Übung "GPIO-Pins in Mikrocontroller-Boards" soll eine Ampelschaltung implementiert werden. Die aktuelle Information über den Status der Ampel soll auch an ein IoT-Gateway (z.B. Raspberry-Pi) übertragen werden. Dieser soll den Mikrokontroller auch resetten können.
 
 ### Implementierung
