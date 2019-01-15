@@ -196,9 +196,6 @@ void handleStateMachine() {
         if(step > 11) {
             step = 0;
         }
-        if (wait == -1) {
-            step = 0;
-        }
     }
 }
 
@@ -220,9 +217,22 @@ void handleSendState() {
     }
 }
 
+static int bounceCounter = 0;
+static bool inputHigh = false;
+
+void handleExternalIn() {
+    if(inputHigh) {
+        bounceCounter++;
+        if(bounceCounter >= 20) {
+            NVIC_SystemReset();
+        }
+    }
+}
+
 void HAL_SYSTICK_Callback(void) {
     handleStateMachine();
     handleSendState();
+    handleExternalIn();
 }
 
 /**
@@ -297,14 +307,14 @@ static void SystemClock_Config(void) {
 static void EXTILine0_Config(void) {
     GPIO_InitTypeDef GPIO_InitStructure;
 
-    /* Enable GPIOA clock */
-    __HAL_RCC_GPIOA_CLK_ENABLE();
+    /* Enable GPIOC clock */
+    //__HAL_RCC_GPIOC_CLK_ENABLE();
 
-    /* Configure PA0 pin as input floating */
-    GPIO_InitStructure.Mode = GPIO_MODE_IT_FALLING;
-    GPIO_InitStructure.Pull = GPIO_NOPULL;
+    /* Configure PC0 pin as input floating */
+    GPIO_InitStructure.Mode = GPIO_MODE_IT_RISING_FALLING;
+    GPIO_InitStructure.Pull = GPIO_PULLDOWN;
     GPIO_InitStructure.Pin = GPIO_PIN_0;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStructure);
+    HAL_GPIO_Init(GPIOC, &GPIO_InitStructure);
 
     /* Enable and set EXTI Line0 Interrupt to the lowest priority */
     HAL_NVIC_SetPriority(EXTI0_IRQn, 2, 0);
@@ -317,15 +327,12 @@ static void EXTILine0_Config(void) {
   * @retval None
   */
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
-    if (GPIO_Pin == KEY_BUTTON_PIN) {
-        /* Toggle LED3 */
-        BSP_LED_Toggle(LED3);
-        /* Toggle LED4 */
-        BSP_LED_Toggle(LED4);
-        /* Toggle LED5 */
-        BSP_LED_Toggle(LED5);
-        /* Toggle LED6 */
-        BSP_LED_Toggle(LED6);
+    setState(true, true, true);
+    if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_0) == RESET) {
+        bounceCounter = 0;
+        inputHigh = false;
+    } else {
+        inputHigh = true;
     }
 }
 
