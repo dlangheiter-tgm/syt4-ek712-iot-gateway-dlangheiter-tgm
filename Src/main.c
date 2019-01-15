@@ -187,19 +187,25 @@ int runStep(int state) {
     }
 }
 
-void HAL_SYSTICK_Callback(void) {
-    static ms = 0;
-    static state = 0;
-    static sendState = 0;
+void handleStateMachine() {
     static int wait = 0;
     static int step = 0;
     wait--;
     if (wait < 0) {
         wait = runStep(step++);
+        if(step > 11) {
+            step = 0;
+        }
         if (wait == -1) {
             step = 0;
         }
     }
+}
+
+void handleSendState() {
+    static ms = 0;
+    static state = 0;
+    static sendState = 0;
     if(++ms >= 5) {
         if(states[state][sendState] == 1) {
             HAL_GPIO_WritePin(GPIOC, outputPin, GPIO_PIN_SET);
@@ -212,6 +218,11 @@ void HAL_SYSTICK_Callback(void) {
         }
         ms = 0;
     }
+}
+
+void HAL_SYSTICK_Callback(void) {
+    handleStateMachine();
+    handleSendState();
 }
 
 /**
@@ -325,7 +336,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
   */
 static void Error_Handler(void) {
     /* Turn LED5 on */
-    BSP_LED_On(LED5);
+    setWantState(YellowBlinking);
     while (1) {
     }
 }
