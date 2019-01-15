@@ -7,5 +7,6 @@ Die detaillierte [Aufgabenstellung](TASK.md) beschreibt die notwendigen Schritte
 
 ## Implementierung
 
+
 ## Quellen
 
