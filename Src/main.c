@@ -180,7 +180,7 @@ int runStep(int state) {
             setWantState(Yellow);
             return 1000;
         default:
-            setState(true, yellowBlinkingState, true);
+            setState(false, yellowBlinkingState, false);
             yellowBlinkingState = !yellowBlinkingState;
             setWantState(YellowBlinking);
             return 500;
