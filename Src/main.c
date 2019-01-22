@@ -69,7 +69,7 @@ static int states[6][3] = {
         {0, 0, 0},
 };
 
-void setupPin(int pin);
+void setupOutputPin(int pin);
 
 /**
   * @brief  Main program
@@ -96,13 +96,10 @@ int main(void) {
     BSP_LED_Init(LED4);
     BSP_LED_Init(LED5);
 
-    setupPin(outputPin);
+    setupOutputPin(outputPin);
 
     /* Configure the system clock to 168 MHz */
     SystemClock_Config();
-
-    /* Configure EXTI Line0 (connected to PA0 pin) in interrupt mode */
-    EXTILine0_Config();
 
     // Setup systick
     HAL_NVIC_SetPriority(EXTI0_IRQn, 2, 0);
@@ -113,7 +110,7 @@ int main(void) {
     }
 }
 
-void setupPin(int pin) {
+void setupOutputPin(int pin) {
     GPIO_InitTypeDef GPIO_InitStruct;
     GPIO_InitStruct.Pin = pin;
     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
@@ -140,7 +137,7 @@ void setState(bool red, bool yellow, bool green) {
 
 enum States {Red, RedYellow, Green, GreenBlinking, Yellow, YellowBlinking};
 
-static wantState = 3;
+static wantState = Red;
 
 void setWantState(enum States _wantState) {
     wantState = _wantState;
@@ -217,22 +214,9 @@ void handleSendState() {
     }
 }
 
-static int bounceCounter = 0;
-static bool inputHigh = false;
-
-void handleExternalIn() {
-    if(inputHigh) {
-        bounceCounter++;
-        if(bounceCounter >= 20) {
-            NVIC_SystemReset();
-        }
-    }
-}
-
 void HAL_SYSTICK_Callback(void) {
     handleStateMachine();
     handleSendState();
-    handleExternalIn();
 }
 
 /**
@@ -296,43 +280,6 @@ static void SystemClock_Config(void) {
     if (HAL_GetREVID() == 0x1001) {
         /* Enable the Flash prefetch */
         __HAL_FLASH_PREFETCH_BUFFER_ENABLE();
-    }
-}
-
-/**
-  * @brief  Configures EXTI Line0 (connected to PA0 pin) in interrupt mode
-  * @param  None
-  * @retval None
-  */
-static void EXTILine0_Config(void) {
-    GPIO_InitTypeDef GPIO_InitStructure;
-
-    /* Enable GPIOC clock */
-    //__HAL_RCC_GPIOC_CLK_ENABLE();
-
-    /* Configure PC0 pin as input floating */
-    GPIO_InitStructure.Mode = GPIO_MODE_IT_RISING_FALLING;
-    GPIO_InitStructure.Pull = GPIO_PULLDOWN;
-    GPIO_InitStructure.Pin = GPIO_PIN_0;
-    HAL_GPIO_Init(GPIOC, &GPIO_InitStructure);
-
-    /* Enable and set EXTI Line0 Interrupt to the lowest priority */
-    HAL_NVIC_SetPriority(EXTI0_IRQn, 2, 0);
-    HAL_NVIC_EnableIRQ(EXTI0_IRQn);
-}
-
-/**
-  * @brief EXTI line detection callbacks
-  * @param GPIO_Pin: Specifies the pins connected EXTI line
-  * @retval None
-  */
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
-    setState(true, true, true);
-    if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_0) == RESET) {
-        bounceCounter = 0;
-        inputHigh = false;
-    } else {
-        inputHigh = true;
     }
 }
 
