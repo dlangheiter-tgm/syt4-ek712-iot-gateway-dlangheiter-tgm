@@ -3,8 +3,14 @@
 ## Aufgabenstellung
 Die detaillierte [Aufgabenstellung](TASK.md) beschreibt die notwendigen Schritte zur Realisierung.
 
-## Recherche
-
+## Verwendung
+Wenn man das Template von Michael Borko [Github](https://github.com/mborko/stm32f4-template)
+verwendet.
+Einfach das Projekt clonen und flashen.
+```sh
+git clone https://github.com/dlangheiter-tgm/syt4-ek712-iot-gateway-dlangheiter-tgm src/iot-gateway
+make clean flash PROJ=src/iot-gateway
+```
 
 ## Implementierung
 Am anfang habe ich den Code vom der Aufgabe [GK7.1.1](https://elearning.tgm.ac.at/mod/assign/view.php?id=47943)
